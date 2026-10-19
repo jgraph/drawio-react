@@ -1,0 +1,18 @@
+* { box-sizing: border-box; }
+body { margin: 0; font: 14px/1.4 system-ui, sans-serif; color: #1f2328; }
+nav { display: flex; gap: 16px; align-items: center; padding: 12px 20px; border-bottom: 1px solid #d0d7de; flex-wrap: wrap; }
+nav a { color: #57606a; text-decoration: none; }
+nav a.active { color: #f08705; font-weight: 600; }
+nav a:last-child { margin-left: auto; }
+main { padding: 20px; }
+button, select { font: inherit; padding: 4px 12px; }
+.toolbar { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; }
+.overlay { position: fixed; inset: 0; z-index: 10; background: rgba(0, 0, 0, 0.4); padding: 24px; }
+.overlay iframe { border-radius: 8px; background: white; }
+.diagram { max-width: 100%; cursor: pointer; border: 1px solid transparent; }
+.diagram:hover { border-color: #f08705; }
+.split { display: flex; gap: 12px; height: 600px; }
+.split .side { display: flex; flex-direction: column; gap: 8px; width: 320px; }
+.split textarea { flex: 1; font: 13px/1.4 ui-monospace, monospace; padding: 8px; }
+.inline-target { display: inline-flex; align-items: center; justify-content: center; min-width: 320px; min-height: 200px; padding: 8px; border: 1px dashed #d0d7de; cursor: pointer; color: #57606a; }
+.inline-target img { max-width: 100%; }
