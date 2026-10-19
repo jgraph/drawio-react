@@ -141,6 +141,8 @@ npm run build
 DRAWIO_URL=http://localhost:8080/ npm run test:e2e
 ```
 
+`npm run examples` uses embed.diagrams.net. Open http://localhost:5173/?dev=1 to use the draw.io at `https://test.draw.io/?dev=1` instead, a local draw.io under that name, or start the examples with `DRAWIO_URL=<editor URL>` for any other draw.io.
+
 The end-to-end tests run the examples in headless Chrome against a draw.io build that you serve locally (`src/main/webapp` of [jgraph/drawio](https://github.com/jgraph/drawio)). embed.diagrams.net does not serve headless browsers.
 
 ## License

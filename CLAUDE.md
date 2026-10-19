@@ -68,6 +68,10 @@ npm test && npm run typecheck && npm run build
 DRAWIO_URL=https://test.draw.io/?dev=1 npm run test:e2e
 ```
 
+The examples (`npm run examples`) use embed.diagrams.net,
+`http://localhost:5173/?dev=1` uses `https://test.draw.io/?dev=1` (the local
+draw.io), and `DRAWIO_URL` overrides both (`examples/dev-editor.tsx`).
+
 embed.diagrams.net answers 403 to headless Chrome, so run the e2e tests
 against a local draw.io (`src/main/webapp` of jgraph/drawio over http; CI
 uses a sparse checkout). It also refuses embedding pages on a port other
