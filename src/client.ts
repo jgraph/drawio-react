@@ -69,8 +69,10 @@ export class DrawioError extends Error
 
 interface PendingRequest
 {
-  /** The request was sent, it is not waiting for the editor to load. */
+  /** The request was sent, it is not waiting for the editor. */
   sent: boolean;
+  /** When it was sent: responses without the request match in this order. */
+  sentOrder: number;
   /** Events that answer the request. */
   responses: DrawioEventName[];
   /** The request is answered by its event without the request in `message`. */
@@ -88,8 +90,9 @@ let nextClientId = 0;
  * the editor URL, and sends messages only to that origin.
  *
  * The client sets the URL of the iframe after it listens for messages, so
- * that it cannot miss the first event. Requests sent before the editor
- * loaded its first diagram wait for the `load` event. If the editor starts
+ * that it cannot miss the first event. Loads and templates requested before
+ * the editor started wait for its `init` event and come after the initial
+ * diagram; other requests wait for the first `load` event. If the editor starts
  * again without the client loading it, e.g. after a link in the diagram
  * opened another page in the iframe, the client loads its URL again.
  */
@@ -102,13 +105,18 @@ export class DrawioClient
   private readonly options: DrawioClientOptions;
   private readonly idPrefix = "drawio-" + (++nextClientId) + "-";
   private readonly pending = new Map<string, PendingRequest>();
+  // Waiting for the first diagram, and for the editor to start (load, template)
   private queue: Array<() => void> = [];
+  private startQueue: Array<() => void> = [];
+  private sendCount = 0;
   private nextRequestId = 0;
   private attached = false;
   private stopped = false;
   private loaded = false;
   // The iframe is loading the URL of the client
   private expectStart = true;
+  // The editor sent init: it handles messages
+  private started = false;
   private diffSync = false;
   private templateLoad: LoadOptions | null = null;
   private warnedOrigin: string | null = null;
@@ -163,6 +171,7 @@ export class DrawioClient
     this.detach();
     this.stopped = true;
     this.queue = [];
+    this.startQueue = [];
     this.rejectPending(new DrawioError("closed", "The client was closed"), false);
   }
 
@@ -170,6 +179,7 @@ export class DrawioClient
   reload(): void
   {
     this.expectStart = true;
+    this.started = false;
     this.loaded = false;
     this.rejectPending(new DrawioError("restarted", "The editor restarted"), true);
     this.iframe.setAttribute("src", this.url);
@@ -181,7 +191,10 @@ export class DrawioClient
     this.post(action);
   }
 
-  /** Loads a diagram. Replaces the diagram and clears the undo history. */
+  /**
+   * Loads a diagram. Replaces the diagram and clears the undo history.
+   * Before the editor started, waits for it.
+   */
   load(request: LoadRequest): Promise<DrawioEventOf<"load">>
   {
     return this.request({ ...normalizeLoad(request), action: "load" } as LoadAction, ["load"],
@@ -196,8 +209,20 @@ export class DrawioClient
    */
   showTemplates(options: Omit<Fields<TemplateAction>, "callback"> = {}, loadOptions: LoadOptions = {}): void
   {
-    this.templateLoad = loadOptions;
-    this.post({ ...options, action: "template", callback: true });
+    const show = () =>
+    {
+      this.templateLoad = loadOptions;
+      this.post({ ...options, action: "template", callback: true });
+    };
+
+    if (this.started)
+    {
+      show();
+    }
+    else
+    {
+      this.startQueue.push(show);
+    }
   }
 
   /** Merges a diagram into the current diagram. */
@@ -415,6 +440,7 @@ export class DrawioClient
   private restart(): void
   {
     this.expectStart = false;
+    this.started = true;
     this.loaded = false;
     this.templateLoad = null;
     this.rejectPending(new DrawioError("restarted", "The editor restarted"), true);
@@ -431,6 +457,12 @@ export class DrawioClient
         // Reported as a load event
       });
     }
+
+    // Loads and templates requested before the editor started come after
+    // the initial diagram, so the latest request wins
+    const queue = this.startQueue;
+    this.startQueue = [];
+    queue.forEach((send) => send());
   }
 
   private request<N extends DrawioEventName>(action: DrawioAction, responses: N[],
@@ -447,7 +479,7 @@ export class DrawioClient
     return new Promise<DrawioEventOf<N>>((resolve, reject) =>
     {
       const request: PendingRequest = {
-        sent: false, responses, unechoed: options.unechoed ?? false,
+        sent: false, sentOrder: 0, responses, unechoed: options.unechoed ?? false,
         resolve: resolve as (event: DrawioEvent) => void, reject
       };
 
@@ -468,6 +500,7 @@ export class DrawioClient
         if (this.pending.get(requestId) === request)
         {
           request.sent = true;
+          request.sentOrder = ++this.sendCount;
 
           if (action.action == "load")
           {
@@ -478,13 +511,14 @@ export class DrawioClient
         }
       };
 
-      if (options.immediate || this.loaded)
+      // A load needs a started editor, other requests a loaded diagram
+      if (options.immediate ? this.started : this.loaded)
       {
         send();
       }
       else
       {
-        this.queue.push(send);
+        (options.immediate ? this.startQueue : this.queue).push(send);
       }
     });
   }
@@ -498,12 +532,16 @@ export class DrawioClient
 
     if (key == null && id == null)
     {
+      // The oldest sent request: the editor answers in order
+      let first: PendingRequest | null = null;
+
       for (const [pendingId, request] of this.pending)
       {
-        if (request.sent && request.unechoed && request.responses.includes(event.event))
+        if (request.sent && request.unechoed && request.responses.includes(event.event) &&
+          (first == null || request.sentOrder < first.sentOrder))
         {
+          first = request;
           key = pendingId;
-          break;
         }
       }
     }

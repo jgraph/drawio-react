@@ -172,6 +172,27 @@ describe("DrawioClient", () =>
     await expect(xml).resolves.toBe("<mxfile id=\"1\"/>");
   });
 
+  it("sends loads and templates requested before init after the initial diagram", async () =>
+  {
+    const { iframe, sent, client } = createClient({ onInit: (c) => c.load({ xml: "<a/>" }).catch(() => {}) });
+    const early = client.load({ xml: "<b/>" });
+    client.showTemplates();
+    expect(sent).toHaveLength(0);
+
+    receive(iframe, { event: "init" });
+    expect(sent.filter((m) => m.action == "load").map((m) => m.xml)).toEqual(["<a/>", "<b/>"]);
+    expect(lastAction(sent, "template")).toBeDefined();
+
+    let settled = false;
+    early.then(() => settled = true, () => settled = true);
+    receive(iframe, { event: "load", xml: "<a/>", ...state });
+    await Promise.resolve();
+    expect(settled).toBe(false);
+
+    receive(iframe, { event: "load", xml: "<b/>", ...state });
+    await expect(early).resolves.toMatchObject({ xml: "<b/>" });
+  });
+
   it("resolves the load request with the load event", async () =>
   {
     const { iframe, sent, client } = createClient({ onInit: () => {} });
