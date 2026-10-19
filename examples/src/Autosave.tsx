@@ -22,8 +22,8 @@ export default function Autosave()
           // Stored: the editor does not ask before the page is left
           editor.current!.setModified(false);
         }}
-        // Hides the Save, Save and Exit and Exit buttons
-        urlParameters={{ noSaveBtn: true, saveAndExit: false, noExitBtn: true }}
+        // Light or dark like the system, without the Save, Save and Exit and Exit buttons
+        urlParameters={{ dark: "auto", noSaveBtn: true, saveAndExit: false, noExitBtn: true }}
       />
     </div>
   );

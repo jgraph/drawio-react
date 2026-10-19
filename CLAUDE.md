@@ -53,6 +53,10 @@ embed mode reference (`docs/reference/embed-mode.md` in drawusaurus).
   echo (except for descriptors). Reject requests the editor would never
   answer (`merge` without data, `resetDiff` without diff sync) instead of
   letting them time out.
+- **Iframe color scheme:** the default style has `colorScheme: "normal"`,
+  the scheme of the editor page. A frame whose scheme differs from its
+  document gets an opaque backdrop, which hides dark pages behind the
+  inline editor and flashes white while the editor loads.
 - **Remote functions:** look names up with `hasOwnProperty` only.
 - **Clean room:** do not read the source of other draw.io React wrappers
   (react-drawio and its forks). Their READMEs and issue titles are fine.

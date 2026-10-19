@@ -24,7 +24,9 @@ export default function InlineEditing()
       minWidth: Math.min(600, innerWidth - 60),
       minHeight: Math.min(400, innerHeight - 60),
       maxFitScale: 1.5,
-      viewport: { x: 0, y: 0, width: innerWidth, height: innerHeight }
+      viewport: { x: 0, y: 0, width: innerWidth, height: innerHeight },
+      // The image shows the diagram in the light or dark mode of the page
+      theme: "auto"
     });
   }
 
@@ -55,7 +57,7 @@ export default function InlineEditing()
 
       <DrawioEditor
         ref={editor}
-        urlParameters={{ embedInline: true }}
+        urlParameters={{ embedInline: true, dark: "auto" }}
         onEvent={handleEvent}
         style={{
           position: "fixed", inset: 0, zIndex: 10, background: "transparent",

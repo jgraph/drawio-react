@@ -60,7 +60,7 @@ npm run examples
 | `descriptor` | Mermaid, PlantUML or CSV to convert instead: `{format: "mermaid", data}` |
 | `autosave` | Calls `onAutosave` after every change |
 | `templates` | Shows the template dialog when there is no `xml` |
-| `urlParameters` | Look of the editor, e.g. `{ui: "min", dark: true, lang: "de", libraries: true}`. A change reloads the editor with the current diagram. |
+| `urlParameters` | Look of the editor, e.g. `{ui: "min", dark: "auto", lang: "de", libraries: true}`. `dark: "auto"` follows the light or dark mode of the system. A change reloads the editor with the current diagram. |
 | `config` | [Configuration](https://www.drawio.com/docs/reference/configure-diagram-editor): fonts, colours, styles, libraries. Read when the editor starts. |
 | `loadOptions` | More options for loading, e.g. `{title, dark, fit, zoomEvents, exportProtocol}` |
 | `baseUrl` | URL of a [self-hosted draw.io](https://github.com/jgraph/docker-drawio). Default `https://embed.diagrams.net/` |

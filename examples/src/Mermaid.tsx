@@ -19,7 +19,7 @@ export default function Mermaid()
         <textarea value={source} onChange={(e) => setSource(e.target.value)} spellCheck={false} />
         <button onClick={() => setDescriptor({ format: "mermaid", data: source })}>Convert</button>
       </div>
-      <DrawioEditor descriptor={descriptor} />
+      <DrawioEditor descriptor={descriptor} urlParameters={{ dark: "auto" }} />
     </div>
   );
 }

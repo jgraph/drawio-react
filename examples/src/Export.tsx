@@ -33,7 +33,7 @@ export default function Export()
         <button onClick={downloadXml}>.drawio</button>
       </div>
       <div style={{ height: 600 }}>
-        <DrawioEditor ref={editor} urlParameters={{ noSaveBtn: true, saveAndExit: false, noExitBtn: true }} />
+        <DrawioEditor ref={editor} urlParameters={{ dark: "auto", noSaveBtn: true, saveAndExit: false, noExitBtn: true }} />
       </div>
     </>
   );

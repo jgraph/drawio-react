@@ -29,6 +29,8 @@ describe("DrawioEditor", () =>
 
     expect(iframe.title).toBe("draw.io editor");
     expect(iframe.style.width).toBe("100%");
+    // Transparent on dark pages (see defaultStyle)
+    expect(iframe.style.colorScheme).toBe("normal");
     expect(iframe.getAttribute("allow")).toContain("clipboard-write");
     expect(new URL(iframe.src).searchParams.get("ui")).toBe("min");
   });

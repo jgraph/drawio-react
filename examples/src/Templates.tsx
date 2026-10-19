@@ -9,6 +9,7 @@ export default function Templates()
       <DrawioEditor
         templates
         autosave
+        urlParameters={{ dark: "auto" }}
         onAutosave={(event) => console.log("Diagram changed", event.xml?.length)}
       />
     </div>

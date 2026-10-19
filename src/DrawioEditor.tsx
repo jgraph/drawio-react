@@ -79,7 +79,12 @@ export type DrawioEditorHandle = Pick<DrawioClient, HandleMethod> &
 
 const useIsomorphicLayoutEffect = (typeof window !== "undefined") ? useLayoutEffect : useEffect;
 
-const defaultStyle: CSSProperties = { display: "block", width: "100%", height: "100%", border: 0 };
+// The editor page has no color scheme. The same one on the iframe keeps the
+// frame transparent on dark pages: a frame whose color scheme differs from
+// its page gets an opaque backdrop (white flash, white over inline editing).
+const defaultStyle: CSSProperties = {
+  display: "block", width: "100%", height: "100%", border: 0, colorScheme: "normal"
+};
 
 /**
  * The draw.io editor in an iframe, connected with the JSON protocol of

@@ -11,6 +11,8 @@ export default function QuickStart()
       <DrawioEditor
         xml={xml}
         onSave={(event) => setXml(event.xml)}
+        // Light or dark like the system
+        urlParameters={{ dark: "auto" }}
       />
     </div>
   );

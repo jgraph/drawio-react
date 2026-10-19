@@ -8,7 +8,7 @@ import { DrawioEditor, type UrlParameters } from "@drawio/react";
 export default function Options()
 {
   const [ui, setUi] = useState<UrlParameters["ui"]>("kennedy");
-  const [dark, setDark] = useState(false);
+  const [dark, setDark] = useState<UrlParameters["dark"]>("auto");
   const [lang, setLang] = useState("en");
 
   return (
@@ -21,7 +21,11 @@ export default function Options()
           <option value="sketch">Sketch</option>
           <option value="simple">Simple</option>
         </select>
-        <label><input type="checkbox" checked={dark} onChange={(e) => setDark(e.target.checked)} /> Dark</label>
+        <select value={String(dark)} onChange={(e) => setDark((e.target.value == "auto") ? "auto" : e.target.value == "true")}>
+          <option value="auto">Light or dark like the system</option>
+          <option value="false">Light</option>
+          <option value="true">Dark</option>
+        </select>
         <select value={lang} onChange={(e) => setLang(e.target.value)}>
           <option value="en">English</option>
           <option value="de">Deutsch</option>

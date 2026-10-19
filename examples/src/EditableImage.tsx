@@ -33,8 +33,8 @@ export default function EditableImage()
           <DrawioEditor
             ref={editor}
             xml={image}
-            // One Save and Exit button and an Exit button
-            urlParameters={{ noSaveBtn: true, saveAndExit: true }}
+            // Light or dark like the system, with a Save and Exit and an Exit button
+            urlParameters={{ dark: "auto", noSaveBtn: true, saveAndExit: true }}
             onSave={(event) => save(event.exit)}
             onExit={() => setEditing(false)}
           />
