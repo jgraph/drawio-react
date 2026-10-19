@@ -1,7 +1,9 @@
 // End-to-end scenarios of the examples in examples/src: the code the docs
 // tell people to copy must work. They drive the editor in the iframe with
 // its own API and check the host page. Draw.loadPlugin gives the EditorUi;
-// without plugins (embedInline) the next load of a diagram does.
+// without plugins (embedInline) the next load of a diagram does. Waits in
+// the editor poll on an interval: Chrome runs no animation frames in a
+// hidden cross-origin iframe (the inline example), the default polling.
 
 /** The frame of the editor whose URL contains the given text. */
 async function editorFrame(page, match = "embed=1")
@@ -25,7 +27,7 @@ async function editorFrame(page, match = "embed=1")
     throw new Error("No editor frame");
   }
 
-  await frame.waitForFunction(() => typeof App !== "undefined", { timeout: 60000 });
+  await frame.waitForFunction(() => typeof App !== "undefined", { timeout: 60000, polling: 100 });
   await frame.evaluate(() =>
   {
     if (window.Draw?.loadPlugin != null)
@@ -59,7 +61,7 @@ async function waitForDiagram(frame, text)
 
     return ui != null && ui.editor.graph.isEnabled() && (t == null ||
       mxUtils.getXml(ui.editor.getGraphXml()).includes(t));
-  }, { timeout: 30000 }, text);
+  }, { timeout: 30000, polling: 100 }, text);
 }
 
 async function insertCell(frame, label)
@@ -75,7 +77,7 @@ async function insertCell(frame, label)
 async function clickButton(frame, text)
 {
   await frame.waitForFunction((t) => [...document.querySelectorAll("button, .geBtn, a")]
-    .some((b) => b.textContent.trim() == t), { timeout: 30000 }, text);
+    .some((b) => b.textContent.trim() == t), { timeout: 30000, polling: 100 }, text);
   await frame.evaluate((t) => [...document.querySelectorAll("button, .geBtn, a")]
     .find((b) => b.textContent.trim() == t).click(), text);
 }
@@ -95,7 +97,7 @@ export const exampleScenarios = {
     await waitForDiagram(frame);
     await insertCell(frame, "Quick");
     await clickButton(frame, "Save");
-    await frame.waitForFunction(() => !window.testUi.editor.modified);
+    await frame.waitForFunction(() => !window.testUi.editor.modified, { polling: 100 });
   },
 
   async autosave(page)
@@ -106,7 +108,7 @@ export const exampleScenarios = {
     await waitForDiagram(frame);
     await insertCell(frame, "Stored");
     await page.waitForFunction(() => localStorage.getItem("drawio-example")?.includes("Stored"));
-    await frame.waitForFunction(() => !window.testUi.editor.modified);
+    await frame.waitForFunction(() => !window.testUi.editor.modified, { polling: 100 });
 
     await page.reload({ waitUntil: "domcontentloaded" });
     frame = await editorFrame(page);
